@@ -2,10 +2,32 @@ package com.aritradas.boxboxclubassignment.ui.screen
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Divider
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.LoadingIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableLongStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -16,17 +38,17 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.compose.foundation.layout.windowInsetsPadding
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.statusBars
 import com.aritradas.boxboxclubassignment.R
 import com.aritradas.boxboxclubassignment.data.model.Race
 import com.aritradas.boxboxclubassignment.ui.viewmodel.DetailUiState
 import com.aritradas.boxboxclubassignment.ui.viewmodel.DetailViewModel
 import kotlinx.coroutines.delay
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Calendar
+import java.util.Date
+import java.util.Locale
 
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun DetailScreen(
     viewModel: DetailViewModel,
@@ -41,7 +63,7 @@ fun DetailScreen(
     ) {
         when (val state = uiState) {
             is DetailUiState.Loading -> {
-                CircularProgressIndicator(
+                LoadingIndicator(
                     color = Color.Green,
                     modifier = Modifier.align(Alignment.Center)
                 )
@@ -73,6 +95,22 @@ fun DetailScreen(
                 Column(
                     modifier = Modifier.fillMaxSize()
                 ) {
+                    TopAppBar(
+                        title = {
+                            Text(
+                                text = "Upcoming race",
+                                color = Color.White,
+                                style = MaterialTheme.typography.titleLarge,
+                                modifier = Modifier.fillMaxWidth(),
+                                textAlign = TextAlign.Center
+                            )
+                        },
+                        colors = TopAppBarDefaults.topAppBarColors(
+                            containerColor = Color(0xFF065E3B)
+                        ),
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    
                     RaceDetailHeader(
                         race = state.race,
                         modifier = Modifier.fillMaxWidth()
@@ -104,30 +142,17 @@ fun RaceDetailHeader(
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .height(420.dp)
             .background(
                 brush = Brush.verticalGradient(
                     colors = listOf(Color(0xFF065E3B), Color.Black)
                 )
             )
     ) {
-        Text(
-            text = "Upcoming race",
-            color = Color.White,
-            style = MaterialTheme.typography.titleLarge,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 20.dp)
-                .padding(top = 4.dp)
-                .align(Alignment.TopCenter),
-            textAlign = TextAlign.Center
-        )
-
         Column(
             modifier = Modifier
-                .fillMaxSize()
+                .fillMaxWidth()
                 .padding(horizontal = 16.dp)
-                .padding(top = 30.dp)
+                .padding(top = 16.dp, bottom = 24.dp)
         ) {
             Text(
                 text = "Round ${race.round}",
@@ -142,7 +167,6 @@ fun RaceDetailHeader(
                 fontWeight = FontWeight.ExtraBold,
                 modifier = Modifier
                     .padding(top = 8.dp)
-                    .fillMaxWidth(0.7f)
             )
 
             Text(
@@ -192,6 +216,8 @@ fun RaceDetailHeader(
                     modifier = Modifier.fillMaxWidth()
                 )
             }
+
+            Spacer(modifier = Modifier.height(16.dp))
         }
 
         Image(
@@ -276,7 +302,7 @@ fun CircuitDetailsSection(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 24.dp)
+            .padding(horizontal = 16.dp)
     ) {
         Text(
             text = "${formatCircuitName(circuitId)} Circuit",
