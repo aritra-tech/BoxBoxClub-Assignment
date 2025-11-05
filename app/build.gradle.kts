@@ -63,6 +63,7 @@ dependencies {
     implementation(libs.ktor.client.core)
     implementation(libs.ktor.client.content.negotiation)
     implementation(libs.ktor.serialization.kotlinx.json)
+    implementation(libs.ktor.client.logging)
 
     // Kotlinx Serialization
     implementation(libs.kotlinx.serialization.json)
@@ -70,8 +71,7 @@ dependencies {
     // Coil for image loading
     implementation(libs.coil.compose)
     
-    // Pager for sliding
-    implementation(libs.androidx.foundation)
+    // Pager for sliding (foundation is already included via compose-bom)
     
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
