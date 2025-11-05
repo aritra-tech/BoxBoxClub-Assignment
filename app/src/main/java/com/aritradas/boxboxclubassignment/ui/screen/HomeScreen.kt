@@ -2,6 +2,7 @@ package com.aritradas.boxboxclubassignment.ui.screen
 
 import android.content.Intent
 import androidx.annotation.DrawableRes
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -10,6 +11,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -17,8 +19,10 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -33,6 +37,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
@@ -121,7 +126,9 @@ fun HomeScreen(
 
             is HomeUiState.Success -> {
                 Column(
-                    modifier = Modifier.fillMaxSize()
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .verticalScroll(rememberScrollState())
                 ) {
                     state.drivers.getOrNull(state.currentDriverIndex)?.let { driver ->
                         DriverCard(
@@ -169,8 +176,6 @@ fun HomeScreen(
                         }
                     }
 
-
-                    // F1 25 Promotional Card
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -408,12 +413,13 @@ fun EducationCard(
         colors = CardDefaults.cardColors(containerColor = Color(0xFF3020FD))
     ) {
         Box(
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(12.dp)
         ) {
             Row(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .padding(16.dp),
+                    .fillMaxSize(),
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -447,6 +453,7 @@ fun EducationCard(
                 modifier = Modifier
                     .size(16.dp)
                     .align(Alignment.TopEnd)
+                    .padding(top = 4.dp, end = 4.dp)
             )
         }
     }
@@ -462,7 +469,7 @@ fun RaceInfoCard(
         modifier = modifier
             .height(172.dp)
             .clickable(onClick = onClick),
-        shape = RoundedCornerShape(12.dp),
+        shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = Color(0xFF044331))
     ) {
         Column(
@@ -521,10 +528,15 @@ fun F125PromoCard(
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .height(400.dp)
-            .clickable(onClick = onClick),
+            .clickable(onClick = onClick)
+            .shadow(
+                elevation = 8.dp,
+                shape = RoundedCornerShape(16.dp),
+                clip = false
+            ),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.Red)
+        border = BorderStroke(1.dp, Color(0xFF1E1E1E)),
+        colors = CardDefaults.cardColors(containerColor = Color.Black)
     ) {
         Image(
             painter = painterResource(R.drawable.f1promocard),
@@ -534,6 +546,7 @@ fun F125PromoCard(
         )
     }
 }
+
 
 fun formatSessionTime(timestamp: Long): String {
     val date = Date(timestamp * 1000)
