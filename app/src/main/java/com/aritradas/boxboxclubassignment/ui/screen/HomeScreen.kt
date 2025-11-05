@@ -33,6 +33,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
@@ -61,8 +64,9 @@ fun HomeScreen(
     onNavigateToDetail: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    var currentPage by remember { mutableIntStateOf(0) }
 
     LaunchedEffect(uiState) {
         when (val state = uiState) {
@@ -81,6 +85,15 @@ fun HomeScreen(
             }
 
             else -> {}
+        }
+    }
+
+    LaunchedEffect(uiState) {
+        if (uiState is HomeUiState.Success) {
+            while (true) {
+                delay(3000)
+                currentPage = (currentPage + 1) % 2
+            }
         }
     }
 
@@ -126,10 +139,39 @@ fun HomeScreen(
                         .fillMaxSize()
                         .verticalScroll(rememberScrollState())
                 ) {
-                    state.drivers.getOrNull(state.currentDriverIndex)?.let { driver ->
-                        DriverCard(
-                            driver = driver,
-                            modifier = Modifier.fillMaxWidth()
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(400.dp)
+                    ) {
+                        when (currentPage) {
+                            0 -> {
+                                state.drivers.getOrNull(state.currentDriverIndex)?.let { driver ->
+                                    DriverCard(
+                                        driver = driver,
+                                        modifier = Modifier.fillMaxWidth()
+                                    )
+                                }
+                            }
+
+                            1 -> {
+                                Image(
+                                    painter = painterResource(id = R.drawable.second_slide),
+                                    contentDescription = "Slider Image",
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .size(300.dp)
+                                        .padding(top = 200.dp)
+                                )
+                            }
+                        }
+
+                        PageIndicators(
+                            currentPage = currentPage,
+                            totalPages = 2,
+                            modifier = Modifier
+                                .align(Alignment.BottomCenter)
+                                .padding(bottom = 16.dp)
                         )
                     }
 
@@ -308,26 +350,6 @@ fun DriverCard(
                 )
 
             }
-        }
-
-        // Page indicator dots at bottom center
-        Row(
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .padding(bottom = 16.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            Box(
-                modifier = Modifier
-                    .width(32.dp)
-                    .height(4.dp)
-                    .background(Color.White, RoundedCornerShape(2.dp))
-            )
-            Box(
-                modifier = Modifier
-                    .size(4.dp)
-                    .background(Color.White.copy(alpha = 0.5f), CircleShape)
-            )
         }
     }
 }
@@ -543,3 +565,26 @@ fun F125PromoCard(
     }
 }
 
+@Composable
+fun PageIndicators(
+    currentPage: Int,
+    totalPages: Int,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        repeat(totalPages) { page ->
+            Box(
+                modifier = Modifier
+                    .size(8.dp)
+                    .background(
+                        color = if (page == currentPage) Color.White else Color.White.copy(alpha = 0.3f),
+                        shape = CircleShape
+                    )
+            )
+        }
+    }
+}
