@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -26,7 +25,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LoadingIndicator
@@ -53,10 +51,8 @@ import com.aritradas.boxboxclubassignment.data.model.Driver
 import com.aritradas.boxboxclubassignment.data.model.Session
 import com.aritradas.boxboxclubassignment.ui.viewmodel.HomeUiState
 import com.aritradas.boxboxclubassignment.ui.viewmodel.HomeViewModel
+import com.aritradas.boxboxclubassignment.util.Utils.formatSessionTime
 import kotlinx.coroutines.delay
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -545,12 +541,5 @@ fun F125PromoCard(
             contentScale = ContentScale.Crop
         )
     }
-}
-
-
-fun formatSessionTime(timestamp: Long): String {
-    val date = Date(timestamp * 1000)
-    val format = SimpleDateFormat("h:mm a", Locale.getDefault())
-    return format.format(date)
 }
 
