@@ -12,11 +12,16 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.statusBars
 import com.aritradas.boxboxclubassignment.R
 import com.aritradas.boxboxclubassignment.data.model.Race
+import com.aritradas.boxboxclubassignment.ui.viewmodel.DetailUiState
 import com.aritradas.boxboxclubassignment.ui.viewmodel.DetailViewModel
 import kotlinx.coroutines.delay
 import java.text.SimpleDateFormat
@@ -25,25 +30,24 @@ import java.util.*
 @Composable
 fun DetailScreen(
     viewModel: DetailViewModel,
-    onNavigateBack: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    
+
     Box(
         modifier = modifier
             .fillMaxSize()
             .background(Color.Black)
     ) {
         when (val state = uiState) {
-            is com.aritradas.boxboxclubassignment.ui.viewmodel.DetailUiState.Loading -> {
+            is DetailUiState.Loading -> {
                 CircularProgressIndicator(
                     color = Color.Green,
                     modifier = Modifier.align(Alignment.Center)
                 )
             }
-            
-            is com.aritradas.boxboxclubassignment.ui.viewmodel.DetailUiState.Error -> {
+
+            is DetailUiState.Error -> {
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
@@ -57,38 +61,34 @@ fun DetailScreen(
                         style = MaterialTheme.typography.bodyLarge
                     )
                     Spacer(modifier = Modifier.height(16.dp))
-                    Button(onClick = { 
+                    Button(onClick = {
                         viewModel.retry()
                     }) {
                         Text("Retry")
                     }
                 }
             }
-            
-            is com.aritradas.boxboxclubassignment.ui.viewmodel.DetailUiState.Success -> {
+
+            is DetailUiState.Success -> {
                 Column(
                     modifier = Modifier.fillMaxSize()
                 ) {
-                    // Top Section - Race Info Card
                     RaceDetailHeader(
                         race = state.race,
-                        onBackClick = onNavigateBack,
                         modifier = Modifier.fillMaxWidth()
                     )
-                    
-                    // Circuit Details Section
+
                     CircuitDetailsSection(
                         circuitId = state.race.circuitId,
                         modifier = Modifier.fillMaxWidth()
                     )
-                    
+
                     Spacer(modifier = Modifier.height(16.dp))
-                    
-                    // Circuit Facts Section
+
                     CircuitFactsSection(
                         modifier = Modifier.fillMaxWidth()
                     )
-                    
+
                     Spacer(modifier = Modifier.weight(1f))
                 }
             }
@@ -99,122 +99,109 @@ fun DetailScreen(
 @Composable
 fun RaceDetailHeader(
     race: Race,
-    onBackClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .height(400.dp)
+            .height(420.dp)
             .background(
                 brush = Brush.verticalGradient(
-                    colors = listOf(Color.Green, Color.Black)
+                    colors = listOf(Color(0xFF065E3B), Color.Black)
                 )
             )
     ) {
+        Text(
+            text = "Upcoming race",
+            color = Color.White,
+            style = MaterialTheme.typography.titleLarge,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 20.dp)
+                .padding(top = 4.dp)
+                .align(Alignment.TopCenter),
+            textAlign = TextAlign.Center
+        )
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 16.dp, vertical = 16.dp)
+                .padding(horizontal = 16.dp)
+                .padding(top = 30.dp)
         ) {
-            
-            Spacer(modifier = Modifier.height(16.dp))
-            
-            // Title
-            Text(
-                text = "Upcoming race",
-                color = Color.White,
-                style = MaterialTheme.typography.titleLarge,
-                modifier = Modifier.padding(bottom = 8.dp)
-            )
-            
-            // Race Details
             Text(
                 text = "Round ${race.round}",
-                color = Color.White.copy(alpha = 0.7f),
-                style = MaterialTheme.typography.bodyMedium
-            )
-            
-            Text(
-                text = race.raceName,
-                color = Color.White,
-                style = MaterialTheme.typography.displayMedium,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(vertical = 8.dp)
-            )
-            
-            Text(
-                text = formatCircuitName(race.circuitId),
-                color = Color.Green,
+                color = Color.White.copy(alpha = 0.9f),
                 style = MaterialTheme.typography.titleMedium
             )
-            
+
+            Text(
+                text = formatRaceName(race.raceName),
+                color = Color.White,
+                style = MaterialTheme.typography.displayMedium,
+                fontWeight = FontWeight.ExtraBold,
+                modifier = Modifier
+                    .padding(top = 8.dp)
+                    .fillMaxWidth(0.7f)
+            )
+
+            Text(
+                text = formatCircuitName(race.circuitId),
+                color = Color(0xFF02BB81),
+                style = MaterialTheme.typography.headlineSmall,
+                modifier = Modifier.padding(top = 6.dp)
+            )
+
             Text(
                 text = formatRaceDates(race.raceStartTime, race.raceEndTime),
-                color = Color.Green,
-                style = MaterialTheme.typography.bodyMedium
+                color = Color.White,
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.padding(top = 6.dp)
             )
-            
+
             Spacer(modifier = Modifier.height(24.dp))
-            
-            // Countdown Timer - use first upcoming session
+
             val firstUpcomingSession = race.sessions
                 .filter { it.sessionState == "upcoming" }
                 .minByOrNull { it.startTime }
-            
+
             if (firstUpcomingSession != null) {
                 Text(
                     text = "${firstUpcomingSession.sessionName} Starts in",
                     color = Color.White,
-                    style = MaterialTheme.typography.bodyMedium
+                    style = MaterialTheme.typography.titleMedium
                 )
-                
+
                 Spacer(modifier = Modifier.height(8.dp))
-                
+
                 CountdownTimer(
                     targetTime = firstUpcomingSession.startTime,
                     modifier = Modifier.fillMaxWidth()
                 )
             } else {
-                // Fallback to race start time
                 Text(
                     text = "Race Starts in",
                     color = Color.White,
-                    style = MaterialTheme.typography.bodyMedium
+                    style = MaterialTheme.typography.titleMedium
                 )
-                
+
                 Spacer(modifier = Modifier.height(8.dp))
-                
+
                 CountdownTimer(
                     targetTime = race.raceStartTime,
                     modifier = Modifier.fillMaxWidth()
                 )
             }
         }
-        
-        // Circuit Graphic Placeholder (right side)
-        Box(
+
+        Image(
+            painter = painterResource(R.drawable.sao_circuit),
+            contentDescription = "Circuit Image",
             modifier = Modifier
                 .align(Alignment.CenterEnd)
-                .size(200.dp, 300.dp)
-                .padding(end = 24.dp)
-        ) {
-            // Placeholder for circuit graphic
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(
-                        color = Color.Green.copy(alpha = 0.2f),
-                        shape = RoundedCornerShape(16.dp)
-                    ),
-                contentAlignment = Alignment.Center
-            ) {
-//                Image(
-//                    painter = painterResource(R.drawable.sao_paulo_circuit),
-//                    contentDescription = "Circuit Image"
-//                )
-            }
-        }
+                .padding(end = 12.dp, top = 24.dp)
+                .size(width = 220.dp, height = 260.dp)
+        )
     }
 }
 
@@ -225,7 +212,7 @@ fun CountdownTimer(
 ) {
     val currentTime = remember { System.currentTimeMillis() / 1000 }
     var timeRemaining by remember { mutableLongStateOf(maxOf(0, targetTime - currentTime)) }
-    
+
     LaunchedEffect(targetTime) {
         while (timeRemaining > 0) {
             delay(1000)
@@ -233,11 +220,11 @@ fun CountdownTimer(
             timeRemaining = maxOf(0, targetTime - now)
         }
     }
-    
+
     val days = timeRemaining / 86400
     val hours = (timeRemaining % 86400) / 3600
     val minutes = (timeRemaining % 3600) / 60
-    
+
     Row(
         modifier = modifier,
         horizontalArrangement = Arrangement.spacedBy(16.dp)
@@ -298,7 +285,7 @@ fun CircuitDetailsSection(
             fontWeight = FontWeight.Bold,
             modifier = Modifier.padding(bottom = 16.dp)
         )
-        
+
         Text(
             text = getCircuitDescription(circuitId),
             color = Color.White,
@@ -315,7 +302,7 @@ fun CircuitFactsSection(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 24.dp)
+            .padding(horizontal = 16.dp, vertical = 16.dp)
     ) {
         Text(
             text = "Circuit Facts",
@@ -324,24 +311,24 @@ fun CircuitFactsSection(
             fontWeight = FontWeight.Bold,
             modifier = Modifier.padding(bottom = 16.dp)
         )
-        
+
         Divider(
             color = Color.White.copy(alpha = 0.2f),
             modifier = Modifier.padding(vertical = 8.dp)
         )
-        
+
         Text(
             text = "His brother Arthur Leclerc is currently set to race for DAMS in the 2023 F2 Championship",
             color = Color.White,
             style = MaterialTheme.typography.bodyLarge,
             modifier = Modifier.padding(vertical = 8.dp)
         )
-        
+
         Divider(
             color = Color.White.copy(alpha = 0.2f),
             modifier = Modifier.padding(vertical = 8.dp)
         )
-        
+
         Text(
             text = "He's not related to Édouard Leclerc, the founder of a French supermarket chain",
             color = Color.White,
@@ -360,9 +347,25 @@ fun formatCircuitName(circuitId: String): String {
 fun formatRaceDates(startTime: Long, endTime: Long): String {
     val startDate = Date(startTime * 1000)
     val endDate = Date(endTime * 1000)
-    val format = SimpleDateFormat("d MMMM", Locale.getDefault())
-    val endFormat = SimpleDateFormat("d MMMM yyyy", Locale.getDefault())
-    return "${format.format(startDate)} - ${endFormat.format(endDate)}"
+
+    val startCal = Calendar.getInstance().apply { time = startDate }
+    val endCal = Calendar.getInstance().apply { time = endDate }
+
+    val sameMonth = startCal.get(Calendar.MONTH) == endCal.get(Calendar.MONTH)
+    val sameYear = startCal.get(Calendar.YEAR) == endCal.get(Calendar.YEAR)
+
+    return if (sameMonth && sameYear) {
+        val dayStart = startCal.get(Calendar.DAY_OF_MONTH)
+        val dayEnd = endCal.get(Calendar.DAY_OF_MONTH)
+        val monthName = SimpleDateFormat("MMMM", Locale.getDefault()).format(startDate)
+        "$dayStart - $dayEnd $monthName"
+    } else if (sameYear) {
+        val fmt = SimpleDateFormat("d MMM", Locale.getDefault())
+        "${fmt.format(startDate)} - ${fmt.format(endDate)}"
+    } else {
+        val fmt = SimpleDateFormat("d MMM yyyy", Locale.getDefault())
+        "${fmt.format(startDate)} - ${fmt.format(endDate)}"
+    }
 }
 
 fun getCircuitDescription(circuitId: String): String {
@@ -372,5 +375,9 @@ fun getCircuitDescription(circuitId: String): String {
         "sakhir" -> "The Bahrain International Circuit, located in Sakhir, was designed by Hermann Tilke. Originally a camel farm, it features a 5.412 km layout with 15 corners, 3 DRS Zones, and 57 laps. The circuit has 6 alternative layouts."
         else -> "This circuit is one of the premier venues in Formula 1, featuring challenging corners and high-speed sections that test both drivers and cars to their limits."
     }
+}
+
+private fun formatRaceName(raceName: String): String {
+    return raceName.replace("Grand Prix", "GP").trim()
 }
 

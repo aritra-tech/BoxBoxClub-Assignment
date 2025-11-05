@@ -64,10 +64,7 @@ fun NavGraph(navController: NavHostController) {
                 )
             }
             DetailScreen(
-                viewModel = viewModel,
-                onNavigateBack = {
-                    navController.popBackStack()
-                }
+                viewModel = viewModel
             )
         }
     }
